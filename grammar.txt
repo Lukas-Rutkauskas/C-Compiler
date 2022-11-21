@@ -1,0 +1,301 @@
+program ::= extern_list decl_list 
+        | decl_list
+
+extern_list ::= extern extern_listN
+
+extern_listN ::= extern extern_listN
+        | epsilon
+
+extern ::= "extern" type_spec IDENT "(" params ")" ";"
+
+decl_list ::= decl decl_listN
+
+decl_listN ::= decl decl_listN
+        | epsilon
+
+decl ::= var_decl 
+        |  fun_decl
+
+var_decl ::= var_type IDENT ";" 
+
+type_spec ::= "void"
+            |  var_type           
+
+var_type  ::= "int" |  "float" |  "bool"
+
+fun_decl ::= type_spec IDENT "(" params ")" block
+
+params ::= param_list  
+        |  "void" | epsilon
+
+param_list ::= param param_listN
+
+param_listN ::= "," param param_listN
+        | epsilon
+
+param ::= var_type IDENT
+
+block ::= "{" local_decls stmt_list "}"
+
+local_decls ::= local_decl local_decls | epsilon
+
+local_decl ::= var_type IDENT ";"
+
+stmt_list ::= stmt stmt_list | epsilon
+
+stmt ::= expr_stmt 
+        |  block 
+        |  if_stmt 
+        |  while_stmt 
+        |  return_stmt
+
+expr_stmt ::= expr ";" 
+            |  ";"
+
+while_stmt ::= "while" "(" expr ")" stmt 
+
+if_stmt ::= "if" "(" expr ")" block else_stmt
+
+else_stmt  ::= "else" block
+            |  epsilon
+            
+return_stmt ::= "return" ";" 
+            |  "return" expr ";"             
+
+expr ::= IDENT "=" expr
+        | rval       
+
+# operators in order of increasing precedence      
+
+rval ::= r1val rvalN
+
+rvalN ::= "||" r1val rvalN | epsilon
+
+r1val ::= r2val r1valN
+
+r1valN ::= "&&" r2val r1valN | epsilon
+
+r2val ::= r3val r2valN
+
+r2valN ::= "==" r3val r2valN | "!=" r3val r2valN | epsilon
+
+r3val ::= r4val r3valN
+
+r3valN ::= "<=" r4val r3valN | "<" r4val r3valN
+ | ">=" r4val r3valN | ">" r4val r3valN | epsilon
+
+r4val ::= r5val r4valN
+
+r4valN ::= "+" r5val r4valN | "-" r5val r4valN | epsilon
+
+r5val ::= r6val r5valN
+
+r5valN ::= "*" r6val r5valN | "/" r6val r5valN
+ | "%" r6val r5valN | epsilon
+
+r6val ::= "-" r6val | "!" r6val
+        | "(" expr ")"
+        | IDENT | IDENT "(" args ")"
+        | INT_LIT | FLOAT_LIT | BOOL_LIT
+
+args ::= arg_list 
+        |  epsilon
+        
+arg_list ::= expr arglistN
+
+arglistN ::= "," expr arglistN | epsilon
+
+--------------------------------------------------------------------
+
+FIRST SETS
+
+FIRST(program) = { extern, "void", "int", "float", "bool" }
+
+FIRST(extern_list) = { extern }
+
+FIRST(extern_listN) = { extern, epsilon }
+
+FIRST(extern) = { extern }
+
+FIRST(decl_list) = { "void", "int", "float", "bool" }
+
+FIRST(decl_listN) = { "void", "int", "float", "bool", epsilon }
+
+FIRST(decl) = { "void", "int", "float", "bool" }
+
+FIRST(var_decl) = { int, float, bool }
+
+FIRST(type_spec) = { "void", "int", "float", "bool" }       
+
+FIRST(var_type) = { int, float, bool }
+
+FIRST(fun_decl) = { "void", "int", "float", "bool" }
+
+FIRST(params) = { "void", "int", "float", "bool", epsilon }
+
+FIRST(param_list) = { int, float, bool }
+
+FIRST(param_listN) = { ",", epsilon }
+
+FIRST(param) = { int, float, bool }
+
+FIRST(block) = { "{" }
+
+FIRST(local_decls) = { int, float, bool, epsilon }
+
+FIRST(local_decl) = { int, float, bool }
+
+FIRST(stmt_list) = { IDENT, "(", ";", "{", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT, epsilon }
+
+FIRST(stmt) = { IDENT, "(", ";", "{", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT}
+
+FIRST(expr_stmt) = { IDENT, "(", ";", "-", "!",
+ INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(while_stmt) = { "while" }
+
+FIRST(if_stmt) LOW= { "if" }
+
+FIRST(else_stmt)  = { "else", epsilon }
+            
+FIRST(return_stmt) = { "return" }            
+
+FIRST(expr) = { IDENT, "(", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }            
+
+FIRST(rval) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(rvalN) = { "||", epsilon }
+
+FIRST(r1val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(r1valN) = { "&&", epsilon } 
+
+FIRST(r2val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(r2valN) = { "==", "!=", epsilon }
+
+FIRST(r3val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(r3valN) = { "<=", "<", ">=", ">", epsilon }
+
+FIRST(r4val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(r4valN) = { "+", "-", epsilon }
+
+FIRST(r5val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(r5valN) = { "*", "/", "%", epsilon }
+
+FIRST(r6val) = { IDENT, "{", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(args) = { IDENT, "(", "-", "!",
+ INT_LIT, FLOAT_LIT, BOOL_LIT, epsilon }
+        
+FIRST(arg_list) = { IDENT, "(", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FIRST(arglistN) = { ",", epsilon }
+
+--------------------------------------------------------------------
+
+FOLLOW SETS
+
+FOLLOW(program) = { EOF }
+
+FOLLOW(extern_list) = { "void", "int", "float", "bool" }
+
+FOLLOW(extern_listN) = { "void", "int", "float", "bool" }
+
+FOLLOW(extern) = { extern, "void", "int", "float", "bool" }
+
+FOLLOW(decl_list) = { EOF }
+
+FOLLOW(decl_listN) = { EOF }
+
+FOLLOW(decl) = { EOF, "void", "int", "float", "bool" }
+
+FOLLOW(var_decl) = { EOF, "void", "int", "float", "bool" }
+
+FOLLOW(type_spec) = { IDENT }       
+
+FOLLOW(var_type) = { IDENT }
+
+FOLLOW(fun_decl) = { EOF, "void", "int", "float", "bool" }
+
+FOLLOW(params) = { ")" }
+
+FOLLOW(param_list) = { ")" }
+
+FOLLOW(param_listN) = { ")" }
+
+FOLLOW(param) = { ")", "," }
+
+FOLLOW(block) = { IDENT, "(", ";", "void", "int", "float", "bool",
+ "{", "}", "while", "if", "else", "return", "-", "!", INT_LIT, 
+ FLOAT_LIT, BOOL_LIT, EOF }
+
+FOLLOW(local_decls) = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FOLLOW(local_decl) = { IDENT, "(", ";", int, float, bool, "{", "}",
+ "while", "if", "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FOLLOW(stmt_list) = { "}" }
+
+FOLLOW(stmt) = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT}
+
+FOLLOW(expr_stmt) = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FOLLOW(while_stmt) = { "IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FOLLOW(if_stmt) = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+
+FOLLOW(else_stmt)  = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }
+            
+FOLLOW(return_stmt) = { IDENT, "(", ";", "{", "}", "while", "if",
+ "return", "-", "!", INT_LIT, FLOAT_LIT, BOOL_LIT }            
+
+FOLLOW(expr) = { ")", ";", "," }            
+
+FOLLOW(rval) = { ")", ";", "," }
+
+FOLLOW(rvalN) = { ")", ";", "," }
+
+FOLLOW(r1val) = { ")", ";", ",", "||" }
+
+FOLLOW(r1valN) = { ")", ";", ",", "||" } 
+
+FOLLOW(r2val) = { ")", ";", ",", "||", "&&" }
+
+FOLLOW(r2valN) = { ")", ";", ",", "||", "&&" }
+
+FOLLOW(r3val) = { ")", ";", ",", "||", "&&", "==", "!=" }
+
+FOLLOW(r3valN) = { ")", ";", ",", "||", "&&", "==", "!=" }
+
+FOLLOW(r4val) = { ")", ";", ",", "||", "&&", "==", "!=",
+ "<=", "<", ">=, ">" }
+
+FOLLOW(r4valN) = { ")", ";", ",", "||", "&&", "==", "!=",
+ "<=", "<", ">=, ">" }
+
+FOLLOW(r5val) = { ")", ";", ",", "||", "&&", "==", "!=",
+ "<=", "<", ">=, ">", "+", "-" }
+
+FOLLOW(r5valN) = { ")", ";", ",", "||", "&&", "==", "!=",
+ "<=", "<", ">=, ">", "+", "-" }
+
+FOLLOW(r6val) = { ")", ";", ",", "||", "&&", "==", "!=",
+ "<=", "<", ">=, ">", "+", "-", "*", "/", "%" }
+
+FOLLOW(args) = { ")" }
+        
+FOLLOW(arg_list) = { ")" }
+
+FOLLOW(arglistN) = { ")" }
